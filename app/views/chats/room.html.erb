@@ -1,0 +1,126 @@
+<!-- <div class="chat_container"> -->
+  <div id="chat_room">
+    <p class="alert"> Welcome to the game room<%#= @username %>! </p>
+  </div>
+<!-- 
+  <div class='joined'>
+  </div>
+
+  <form id="new_message_form">
+    <input type="text" id="message" name="message">
+  </form>
+</div> -->
+    <input id='submit' type="button" value="Send">
+
+<canvas id="canvas" >
+
+</canvas>
+
+<script type="text/javascript">
+
+  $(function() {
+    // Create a new client to connect to Faye
+    var client = new Faye.Client('http://<%= request.host %>:9292/faye');
+
+
+    var canvas = oCanvas.create({
+      canvas: "#canvas",
+      background: "white"
+    });
+
+    function getRandom(min,max) {
+      return Math.random() * (max - min) + min;
+    };
+
+    var y_pos = getRandom(10, 140);   
+    var x_pos = getRandom(10, 290);
+
+    var ellipse = canvas.display.ellipse({
+      x: x_pos,
+      y: y_pos,
+      radius: 6,
+      stroke: "10px <%= @color %>",
+      fill: "<%= @color %>"
+    });
+
+    canvas.addChild(ellipse)
+
+    // function (){
+    //   //$(this).css('color', 'red');
+    //   var ellipse_position = {
+    //     id: ellipse.id,
+    //     x: ellipse.x,
+    //     y: ellipse.y,
+    //     stroke: ellipse.stroke,
+    //     fill: ellipse.fill
+    //   };
+
+    //   var session_id = document.getElementsByTagName('meta')[1].content
+    //   // canvas.addChild(ellipse)
+    //   // Publish the message to the public channel
+    //   client.publish('/game', {
+    //     ellipse_id: ellipse_position.id,
+    //     ellipse_x: ellipse_position.x,
+    //     ellipse_y: ellipse_position.y,
+    //     ellipse_stroke: ellipse_position.stroke,
+    //     ellipse_fill: ellipse_position.fill,
+    //     session_id: session_id
+    //   });
+    //   console.log("This object is moving")
+    // };
+
+    ellipse.dragAndDrop({
+      move:     function (){
+                    //$(this).css('color', 'red');
+                    var ellipse_position = {
+                      id: ellipse.id,
+                      x: ellipse.x,
+                      y: ellipse.y,
+                      stroke: ellipse.stroke,
+                      fill: ellipse.fill
+                    };
+                    var array = [ellipse_position, ellipse_position]
+                    console.log(JSON.stringify(array, null, 2))
+                    var session_id = document.getElementsByTagName('meta')[1].content
+                    // canvas.addChild(ellipse)
+                    // Publish the message to the public channel
+                    client.publish('/game', {
+                      ellipse_id: ellipse_position.id,
+                      ellipse_x: ellipse_position.x,
+                      ellipse_y: ellipse_position.y,
+                      ellipse_stroke: ellipse_position.stroke,
+                      ellipse_fill: ellipse_position.fill,
+                      session_id: session_id
+                    });
+                    // console.log("This object is moving")
+                  }
+    });
+    // moving(ellipse)
+    // setInterval(function(){
+    //   console.log(ellipse.x, ellipse.y)
+    // },50);
+
+    // $('#submit').click(moving(ellipse));
+    // Subscribe to the public channel
+    var public_subscription = client.subscribe('/game', function(data) {
+      var ellipse_found = $.grep(canvas.children, function(e){ return e.id == data.ellipse_id; })[0];
+      // console.log(ellipse_found[0].stroke)
+      // console.log(ellipse_found)
+      // console.log(data.ellipse_x, data.ellipse_y)
+      ellipse_found.move(data.ellipse_x - ellipse.x, data.ellipse_y - ellipse.y)
+      // canvas.removeChild(ellipse_found)
+
+      // var ellipse_subs = canvas.display.ellipse({
+      //   x: data.ellipse_x,
+      //   y: data.ellipse_y,
+      //   radius: 6,
+      //   stroke: "10px red",
+      //   fill: "red"
+      // });
+      // ellipse_subs.dragAndDrop();
+      // canvas.addChild(ellipse_subs)
+
+      // console.log(ellipse_found[0])
+    });
+  });
+</script>
