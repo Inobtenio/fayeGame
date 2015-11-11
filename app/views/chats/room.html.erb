@@ -45,29 +45,36 @@
 
     canvas.addChild(ellipse)
 
-    // function (){
-    //   //$(this).css('color', 'red');
-    //   var ellipse_position = {
-    //     id: ellipse.id,
-    //     x: ellipse.x,
-    //     y: ellipse.y,
-    //     stroke: ellipse.stroke,
-    //     fill: ellipse.fill
-    //   };
+    function moving(object){      
+      var ellipse_position = {
+        id: object.id,
+        x: object.x,
+        y: object.y,
+        stroke: object.stroke,
+        fill: object.fill
+      };
+      var str_ellipse = JSON.stringify(ellipse_position, null, 2)
+      var elements_array = []
+      canvas.children.forEach(function(obj){
+        var element = {
+          id: obj.id,
+          x: obj.x,
+          y: obj.y,
+          stroke: obj.stroke,
+          fill: obj.fill
+        };
+        elements_array.push(element)
+      })
 
-    //   var session_id = document.getElementsByTagName('meta')[1].content
-    //   // canvas.addChild(ellipse)
-    //   // Publish the message to the public channel
-    //   client.publish('/game', {
-    //     ellipse_id: ellipse_position.id,
-    //     ellipse_x: ellipse_position.x,
-    //     ellipse_y: ellipse_position.y,
-    //     ellipse_stroke: ellipse_position.stroke,
-    //     ellipse_fill: ellipse_position.fill,
-    //     session_id: session_id
-    //   });
-    //   console.log("This object is moving")
-    // };
+      var game_status = JSON.stringify(elements_array, null, 2)
+      
+      var session_id = document.getElementsByTagName('meta')[1].content
+      
+      client.publish('/game', {
+        ellipse: str_ellipse,
+        game_status: game_status
+      });
+    }
 
     ellipse.dragAndDrop({
       move:     function (){
@@ -79,23 +86,35 @@
                       stroke: ellipse.stroke,
                       fill: ellipse.fill
                     };
-                    var array = [ellipse_position, ellipse_position]
-                    console.log(JSON.stringify(array, null, 2))
+                    var str_ellipse = JSON.stringify(ellipse_position, null, 2)
+                    var elements_array = []
+                    canvas.children.forEach(function(obj){
+                      var element = {
+                        id: obj.id,
+                        x: obj.x,
+                        y: obj.y,
+                        stroke: obj.stroke,
+                        fill: obj.fill
+                      };
+                      elements_array.push(element)
+                    })
+
+                    var game_status = JSON.stringify(elements_array, null, 2)
+
+                    // console.log(game_status)
                     var session_id = document.getElementsByTagName('meta')[1].content
                     // canvas.addChild(ellipse)
                     // Publish the message to the public channel
                     client.publish('/game', {
-                      ellipse_id: ellipse_position.id,
-                      ellipse_x: ellipse_position.x,
-                      ellipse_y: ellipse_position.y,
-                      ellipse_stroke: ellipse_position.stroke,
-                      ellipse_fill: ellipse_position.fill,
+                      ellipse: str_ellipse,
+                      game_status: game_status,
                       session_id: session_id
                     });
                     // console.log("This object is moving")
                   }
     });
-    // moving(ellipse)
+
+    moving(ellipse)
     // setInterval(function(){
     //   console.log(ellipse.x, ellipse.y)
     // },50);
@@ -103,11 +122,17 @@
     // $('#submit').click(moving(ellipse));
     // Subscribe to the public channel
     var public_subscription = client.subscribe('/game', function(data) {
-      var ellipse_found = $.grep(canvas.children, function(e){ return e.id == data.ellipse_id; })[0];
-      // console.log(ellipse_found[0].stroke)
-      // console.log(ellipse_found)
-      // console.log(data.ellipse_x, data.ellipse_y)
-      ellipse_found.move(data.ellipse_x - ellipse.x, data.ellipse_y - ellipse.y)
+      var parsed_ellipse = JSON.parse(data.ellipse)
+      var ellipse_found = $.grep(canvas.children, function(e){ return e.id == 2; })[0];
+
+
+      console.log(ellipse_found)        
+      if (ellipse_found){
+        ellipse_found.move(ellipse_found.x - parsed_ellipse.x, ellipse_found.y - parsed_ellipse.y);
+      } else {
+
+      }
+
       // canvas.removeChild(ellipse_found)
 
       // var ellipse_subs = canvas.display.ellipse({
