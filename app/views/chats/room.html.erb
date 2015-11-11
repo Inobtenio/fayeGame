@@ -43,7 +43,19 @@
       fill: "<%= @color %>"
     });
 
-    canvas.addChild(ellipse)
+    
+    canvas.addChild(ellipse);
+    // function getCurrentStatus(){
+    //   client.publish('/game', {
+    //     last_id: canvas.children[canvas.children.length -1].id
+    //   });
+
+    //   client.subscribe('/game', function(data) {
+    //     console.log(data.last_id)
+    //   });
+    // };    
+
+    // $('#submit').bind('click tap', getCurrentStatus());
 
     function moving(object){      
       var ellipse_position = {
@@ -83,6 +95,7 @@
                       id: ellipse.id,
                       x: ellipse.x,
                       y: ellipse.y,
+                      radius: ellipse.radius,
                       stroke: ellipse.stroke,
                       fill: ellipse.fill
                     };
@@ -93,6 +106,7 @@
                         id: obj.id,
                         x: obj.x,
                         y: obj.y,
+                        radius: obj.radius,
                         stroke: obj.stroke,
                         fill: obj.fill
                       };
@@ -126,26 +140,21 @@
       var ellipse_found = $.grep(canvas.children, function(e){ return e.id == 2; })[0];
 
 
-      console.log(ellipse_found)        
-      if (ellipse_found){
-        ellipse_found.move(ellipse_found.x - parsed_ellipse.x, ellipse_found.y - parsed_ellipse.y);
-      } else {
-
-      }
-
-      // canvas.removeChild(ellipse_found)
-
-      // var ellipse_subs = canvas.display.ellipse({
-      //   x: data.ellipse_x,
-      //   y: data.ellipse_y,
-      //   radius: 6,
-      //   stroke: "10px red",
-      //   fill: "red"
-      // });
-      // ellipse_subs.dragAndDrop();
-      // canvas.addChild(ellipse_subs)
-
-      // console.log(ellipse_found[0])
+      // if (ellipse_found){
+      //   ellipse_found.move(ellipse_found.x - parsed_ellipse.x, ellipse_found.y - parsed_ellipse.y);
+      // } else {
+        var ellipse_subs = canvas.display.ellipse({
+          x: parsed_ellipse.x,
+          y: parsed_ellipse.y,
+          radius: parsed_ellipse.radius,
+          stroke: parsed_ellipse.stroke,
+          fill: parsed_ellipse.fill
+        });
+        ellipse_subs.dragAndDrop();
+        console.log(ellipse_subs.id, ellipse_subs.fill)        
+        canvas.addChild(ellipse_subs)
+        // canvas.redraw()
+      // }
     });
   });
 </script>
